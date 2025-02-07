@@ -1,5 +1,6 @@
 package GUI;
 
+import BD.Conexion;
 import Mapeo.Alumno;
 import org.hibernate.Session;
 
@@ -11,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import static BD.Conexion.crearConexion;
 import static BD.Conexion.mostrarAlumnos;
 
 public class colegioSalesianos extends JFrame {
@@ -34,9 +34,9 @@ public class colegioSalesianos extends JFrame {
     Session sesion;
 
     public colegioSalesianos() {
+        sesion = Conexion.crearConexion();
         initGUI();
         initEventos();
-         sesion = crearConexion();
     }
 
     void initGUI() {
@@ -128,7 +128,7 @@ public class colegioSalesianos extends JFrame {
         List<Alumno> listaAlumnos = mostrarAlumnos(sesion);
 
         String[] columnNamesAlumno = {"Nombre", "Apellido", "Teléfono", "Email", "Dirección", "Estado"};
-        Object[][] dataNotas = new Object[listaAlumnos.size()][4];
+        Object[][] dataNotas = new Object[listaAlumnos.size()][6];
 
         for (int i = 0; i < listaAlumnos.size(); i++) {
             Alumno alumno = listaAlumnos.get(i);

@@ -5,7 +5,7 @@
     <session-factory>
         <!--propiedades de la conexión -->
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="connection.url">jdbc:mysql://127.0.0.1:3306/colegioInterfaz</property>
+        <property name="connection.url">jdbc:mysql://127.0.0.1:3306/colegiointerfaz</property>
         <property name="connection.username">root</property>
         <property name="connection.password">root</property>
         <property name="dialect">org.hibernate.dialect.MySQLDialect</property>

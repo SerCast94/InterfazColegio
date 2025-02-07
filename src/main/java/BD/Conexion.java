@@ -14,35 +14,17 @@ public class Conexion {
         try {
             newSession = new Configuration().configure().buildSessionFactory().openSession();
         } catch (Throwable ex) {
-            System.err.println(ex.getMessage());
-            throw new ExceptionInInitializerError(ex);
+            System.err.println("Error al crear la sesión de Hibernate: " + ex.getMessage());
+            ex.printStackTrace();
         }
         return newSession;
     }
 
     public static List<Alumno> mostrarAlumnos(Session nuevaSesion) {
-        // Query de los clientes
-        Query<Alumno> queryClientes = nuevaSesion.createQuery("FROM Alumno", Alumno.class);
-
-        // Guardo los resultados en una lista de clientes
-        List<Alumno> resultList = queryClientes.getResultList();
-        System.out.println("Número de clientes: " + resultList.size());
-
-        // Muestro resultados
-        System.out.println("Código cliente | Nombre completo | Teléfono | Email | Dirección | Estado");
-        System.out.println("--------------------------------------------------------------------------------");
-
-        // Itero sobre la lista antes creada para mostrar los datos
-        for (Alumno alumno : resultList) {
-            System.out.printf("%-15s %-20s %-10s %-25s %-30s %-10s%n",
-                    alumno.getID(),
-                    alumno.getNombre() + " " + alumno.getApellido(),
-                    alumno.getTelefono(),
-                    alumno.getEmail(),
-                    alumno.getDireccion(),
-                    alumno.getEstado());
+        if (nuevaSesion == null) {
+            throw new IllegalStateException("La sesión de Hibernate es nula. Verifica la conexión.");
         }
-
-        return resultList;
+        Query<Alumno> queryClientes = nuevaSesion.createQuery("FROM Alumno", Alumno.class);
+        return queryClientes.getResultList();
     }
 }
