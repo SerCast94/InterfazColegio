@@ -28,6 +28,14 @@ public class Matricula {
         this.nota = nota;
     }
 
+    public int getID() {
+        return id;
+    }
+
+    public void setID(int id) {
+        this.id = id;
+    }
+
     public Alumno getAlumno() {
         return alumno;
     }

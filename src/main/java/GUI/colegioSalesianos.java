@@ -2,6 +2,8 @@ package GUI;
 
 import BD.Conexion;
 import Mapeo.Alumno;
+import Mapeo.Asignatura;
+import Mapeo.Matricula;
 import org.hibernate.Session;
 
 import javax.swing.*;
@@ -12,7 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import static BD.Conexion.mostrarAlumnos;
+import static BD.Conexion.*;
 
 public class colegioSalesianos extends JFrame {
     Dimension screenSize;
@@ -30,7 +32,11 @@ public class colegioSalesianos extends JFrame {
     JPanel panelAsignatura;
     JPanel panelMatricula;
     JScrollPane scrollPaneAlumno;
+    JScrollPane scrollPaneAsignatura;
+    JScrollPane scrollPaneMatricula;
     JTable tableAlumno;
+    JTable tableAsignatura;
+    JTable tableMatricula;
     Session sesion;
 
     public colegioSalesianos() {
@@ -79,7 +85,6 @@ public class colegioSalesianos extends JFrame {
         // panel de alumnos
         panelAlumno = new JPanel();
         panelAlumno.setLayout(new BorderLayout());
-
         tableAlumno = new JTable(contenidoTablaAlumno(sesion));
         scrollPaneAlumno = new JScrollPane(tableAlumno);
         panelAlumno.add(scrollPaneAlumno);
@@ -88,13 +93,17 @@ public class colegioSalesianos extends JFrame {
         // panel de asignatura
         panelAsignatura = new JPanel();
         panelAsignatura.setLayout(new BorderLayout());
-        panelAsignatura.add(new JLabel("Aquí irá la tabla de horario", SwingConstants.CENTER), BorderLayout.CENTER);
+        tableAsignatura = new JTable(contenidoTablaAsignatura(sesion));
+        scrollPaneAsignatura = new JScrollPane(tableAsignatura);
+        panelAsignatura.add(scrollPaneAsignatura);
         tabbedPane.addTab("Asignatura", new ImageIcon("src/main/resources/img/asignatura.png"), panelAsignatura);
 
         // panel de matrícula
         panelMatricula = new JPanel();
         panelMatricula.setLayout(new BorderLayout());
-        panelMatricula.add(new JLabel("Aquí irá la tabla de excursiones", SwingConstants.CENTER), BorderLayout.CENTER);
+        tableMatricula = new JTable(contenidoTablaMatricula(sesion));
+        scrollPaneMatricula = new JScrollPane(tableMatricula);
+        panelMatricula.add(scrollPaneMatricula);
         tabbedPane.addTab("Matrícula", new ImageIcon("src/main/resources/img/matricula.png"), panelMatricula);
 
         add(tabbedPane);
@@ -140,7 +149,59 @@ public class colegioSalesianos extends JFrame {
             dataNotas[i][5] = alumno.getEstado();
         }
 
-        return new DefaultTableModel(dataNotas, columnNamesAlumno);
+        DefaultTableModel tableModel = new DefaultTableModel(dataNotas, columnNamesAlumno) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        return tableModel;
+    }
+
+    public static TableModel contenidoTablaAsignatura(Session sesion) {
+        List<Asignatura> listaAsignaturas = mostrarAsignaturas(sesion);
+
+        String[] columnNamesAsignatura = {"ID", "Nombre"};
+        Object[][] dataAsignaturas = new Object[listaAsignaturas.size()][2];
+
+        for (int i = 0; i < listaAsignaturas.size(); i++) {
+            Asignatura asignatura = listaAsignaturas.get(i);
+            dataAsignaturas[i][0] = asignatura.getId();
+            dataAsignaturas[i][1] = asignatura.getNombre();
+        }
+
+        DefaultTableModel tableModel = new DefaultTableModel(dataAsignaturas, columnNamesAsignatura) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        return tableModel;
+    }
+
+    public static TableModel contenidoTablaMatricula(Session sesion) {
+        List<Matricula> listaMatriculas = mostrarMatriculas(sesion);
+
+        String[] columnNamesMatricula = {"ID", "Alumno", "Asignatura", "Nota"};
+        Object[][] dataMatriculas = new Object[listaMatriculas.size()][4];
+
+        for (int i = 0; i < listaMatriculas.size(); i++) {
+            Matricula matricula = listaMatriculas.get(i);
+            dataMatriculas[i][0] = matricula.getID();
+            dataMatriculas[i][1] = matricula.getAlumno().getNombre() + " " + matricula.getAlumno().getApellido();
+            dataMatriculas[i][2] = matricula.getAsignatura().getNombre();
+            dataMatriculas[i][3] = matricula.getNota();
+        }
+        DefaultTableModel tableModel = new DefaultTableModel(dataMatriculas, columnNamesMatricula) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        return tableModel;
     }
 
 
