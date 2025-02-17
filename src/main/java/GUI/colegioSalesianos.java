@@ -5,15 +5,20 @@ import Controlador.Controlador;
 import Mapeo.Alumno;
 import Mapeo.Asignatura;
 import Mapeo.Matricula;
+import PDF.MostrarExpedienteAlumnoApache;
 import org.hibernate.Session;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.List;
 
 import static BD.Conexion.*;
@@ -34,6 +39,8 @@ public class colegioSalesianos extends JFrame {
     JMenuItem itemBorrarAlumnos;
     JMenuItem itemBorrarAsignaturas;
     JMenuItem itemBorrarMatriculas;
+    JToolBar toolBar;
+    JButton btnPDF;
     JTabbedPane tabbedPane;
     JPanel panelAlumno;
     JPanel panelAsignatura;
@@ -44,6 +51,9 @@ public class colegioSalesianos extends JFrame {
     JTable tableAlumno;
     JTable tableAsignatura;
     JTable tableMatricula;
+    TableRowSorter<TableModel> sorterAlumno;
+    TableRowSorter<TableModel> sorterAsignatura;
+    TableRowSorter<TableModel> sorterMatricula;
     ContenidoTablaAlumno contenidoAlumno;
     ContenidoTablaAsignatura contenidoAsignatura;
     ContenidoTablaMatricula contenidoMatricula;
@@ -101,6 +111,14 @@ public class colegioSalesianos extends JFrame {
         menuBar.add(menuMatriculas);
         setJMenuBar(menuBar);
 
+
+        //ToolBar
+        toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        btnPDF = new JButton(new ImageIcon("src/main/resources/img/pdf.png"));
+        toolBar.add(btnPDF);
+        add(toolBar, BorderLayout.NORTH);
+
         // menú de pestañas
         tabbedPane = new JTabbedPane();
 
@@ -109,6 +127,8 @@ public class colegioSalesianos extends JFrame {
         panelAlumno.setLayout(new BorderLayout());
         contenidoAlumno = new ContenidoTablaAlumno();
         tableAlumno = new JTable(contenidoAlumno);
+        sorterAlumno = new TableRowSorter<>(contenidoAlumno);
+        tableAlumno.setRowSorter(sorterAlumno);  // Establecemos el sorter
         scrollPaneAlumno = new JScrollPane(tableAlumno);
         panelAlumno.add(scrollPaneAlumno);
         tabbedPane.addTab("Alumno", new ImageIcon("src/main/resources/img/alumno.png"), panelAlumno);
@@ -118,6 +138,8 @@ public class colegioSalesianos extends JFrame {
         panelAsignatura.setLayout(new BorderLayout());
         contenidoAsignatura = new ContenidoTablaAsignatura();
         tableAsignatura = new JTable(contenidoAsignatura);
+        sorterAsignatura = new TableRowSorter<>(contenidoAsignatura);
+        tableAsignatura.setRowSorter(sorterAsignatura);  // Establecemos el sorter
         scrollPaneAsignatura = new JScrollPane(tableAsignatura);
         panelAsignatura.add(scrollPaneAsignatura);
         tabbedPane.addTab("Asignatura", new ImageIcon("src/main/resources/img/asignatura.png"), panelAsignatura);
@@ -127,6 +149,8 @@ public class colegioSalesianos extends JFrame {
         panelMatricula.setLayout(new BorderLayout());
         contenidoMatricula = new ContenidoTablaMatricula();
         tableMatricula = new JTable(contenidoMatricula);
+        sorterMatricula = new TableRowSorter<>(contenidoMatricula);
+        tableMatricula.setRowSorter(sorterMatricula);  // Establecemos el sorter
         scrollPaneMatricula = new JScrollPane(tableMatricula);
         panelMatricula.add(scrollPaneMatricula);
         tabbedPane.addTab("Matrícula", new ImageIcon("src/main/resources/img/matricula.png"), panelMatricula);
@@ -134,6 +158,7 @@ public class colegioSalesianos extends JFrame {
         add(tabbedPane);
         setVisible(true);
     }
+
 
     void initEventos() {
         itemAgregarAlumno.addActionListener(new ActionListener() {
@@ -192,7 +217,63 @@ public class colegioSalesianos extends JFrame {
             }
         });
 
+        tableAlumno.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    int filaSeleccionada = tableAlumno.getSelectedRow();
+                    new ModificarAlumnoVentana(filaSeleccionada);
+                }
+            }
+
+        });
+
+        tableAsignatura.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    int filaSeleccionada = tableAsignatura.getSelectedRow();
+                    new ModificarAsignaturaVentana(filaSeleccionada);
+                }
+            }
+        });
+
+        tableMatricula.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    int filaSeleccionada = tableMatricula.getSelectedRow();
+                    new ModificarMatriculaVentana(filaSeleccionada);
+                }
+            }
+        });
+
+        btnPDF.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+
+                // Establecer la carpeta predeterminada como el escritorio
+                fileChooser.setCurrentDirectory(new File(System.getProperty("user.home") + "/Desktop"));
+                fileChooser.setDialogTitle("Seleccionar expediente del alumno");
+                fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos PDF", "pdf"));
+
+                // Abrir el diálogo para seleccionar el archivo
+                int resultado = fileChooser.showOpenDialog(null);
+                if (resultado == JFileChooser.APPROVE_OPTION) {
+                    String rutaArchivo = fileChooser.getSelectedFile().getAbsolutePath();
+
+                    // Abrir la ventana para mostrar el PDF seleccionado
+                    MostrarExpedienteAlumnoApache ventanaPDF = new MostrarExpedienteAlumnoApache(rutaArchivo);
+                    ventanaPDF.repaint();
+                    ventanaPDF.revalidate();
+                    ventanaPDF.setVisible(true);
+                }
+            }
+        });
 
     }
-
 }

@@ -29,6 +29,12 @@ public class ModificarAsignaturaVentana extends JFrame {
         initEventos();
     }
 
+    public ModificarAsignaturaVentana(int filaSeleccionada) {
+        initGUI();
+        initEventos();
+        cmbId.setSelectedIndex(filaSeleccionada);
+    }
+
     public void initGUI() {
         setTitle("Actualizar Asignatura");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

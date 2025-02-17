@@ -47,6 +47,12 @@ public class ModificarAlumnoVentana extends JFrame {
         initEventos();
     }
 
+    public ModificarAlumnoVentana(int filaSeleccionada) {
+        initGUI();
+        initEventos();
+        cmbId.setSelectedIndex(filaSeleccionada);
+    }
+
     public void initGUI() {
         setTitle("Modificar Alumno");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

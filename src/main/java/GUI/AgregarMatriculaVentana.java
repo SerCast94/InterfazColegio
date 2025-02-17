@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.List;
 
 import static BD.Conexion.insertMatricula;
@@ -20,12 +22,12 @@ public class AgregarMatriculaVentana extends JFrame {
 
     private JButton btnAceptar = new JButton("Aceptar");
     private JButton btnCancelar = new JButton("Cancelar");
-    private JLabel lblIdAlumno = new JLabel("ID Alumno: ");
-    private JLabel lblIdAsignatura = new JLabel("ID Asignatura: ");
+    private JLabel lblIdAlumno = new JLabel("Alumno: ");
+    private JLabel lblIdAsignatura = new JLabel("Asignatura: ");
     private JLabel lblNota = new JLabel("Nota: ");
 
-    private JTextField txtIdAlumno = new JTextField(20);
-    private JTextField txtIdAsignatura = new JTextField(20);
+    private JComboBox<Alumno> cmbAlumnos = new JComboBox<>();
+    private JComboBox<Asignatura> cmbAsignaturas = new JComboBox<>();
     private JTextField txtNota = new JTextField(20);
 
     public AgregarMatriculaVentana() {
@@ -49,10 +51,10 @@ public class AgregarMatriculaVentana extends JFrame {
 
         // Agregar componentes con restricciones
         agregarComponente(lblIdAlumno, 0, 0);
-        agregarComponente(txtIdAlumno, 1, 0);
+        agregarComponente(cmbAlumnos, 1, 0);
 
         agregarComponente(lblIdAsignatura, 0, 1);
-        agregarComponente(txtIdAsignatura, 1, 1);
+        agregarComponente(cmbAsignaturas, 1, 1);
 
         agregarComponente(lblNota, 0, 2);
         agregarComponente(txtNota, 1, 2);
@@ -62,7 +64,7 @@ public class AgregarMatriculaVentana extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         agregarComponente(btnAceptar, 0, 3);
         agregarComponente(btnCancelar, 1, 3);
-
+        cargarComboBoxes();
         setVisible(true);
     }
 
@@ -75,6 +77,7 @@ public class AgregarMatriculaVentana extends JFrame {
     }
 
     public void initEventos() {
+        // Acción de cancelar (cerrar ventana)
         btnCancelar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -82,50 +85,51 @@ public class AgregarMatriculaVentana extends JFrame {
             }
         });
 
+        // Acción de aceptar (agregar matrícula)
         btnAceptar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String idAlumno = txtIdAlumno.getText();
-                String idAsignatura = txtIdAsignatura.getText();
+                Alumno alumnoSeleccionado = (Alumno) cmbAlumnos.getSelectedItem();
+                Asignatura asignaturaSeleccionada = (Asignatura) cmbAsignaturas.getSelectedItem();
                 double nota = Double.parseDouble(txtNota.getText());
 
-                Alumno alumnoEncontrado = null;
-                Asignatura asignaturaEncontrado = null;
-                boolean encontrado = false;
-                boolean encontrado2 = false;
-
-                List<Alumno> listaAlumnos = colegioSalesianos.getInstance().contenidoAlumno.getAlumnos();
-                for(Alumno alumnoBusqueda : listaAlumnos) {
-                    if (alumnoBusqueda.getID() == Integer.parseInt(idAlumno)) {
-                        alumnoEncontrado = alumnoBusqueda;
-                        encontrado = true;
-                    }
+                if (alumnoSeleccionado == null) {
+                    JOptionPane.showMessageDialog(null, "Por favor, selecciona un alumno.");
+                    return;
                 }
-                if (alumnoEncontrado == null) JOptionPane.showMessageDialog(null, "No se encontro el alumno");
-
-                List<Asignatura> listaAsignaturas = colegioSalesianos.getInstance().contenidoAsignatura.getAsignaturas();
-                for(Asignatura asignaturaBusqueda : listaAsignaturas){
-                    if(asignaturaBusqueda.getId() == Integer.parseInt(idAsignatura)) {
-                        asignaturaEncontrado = asignaturaBusqueda;
-                        encontrado2 = true;
-                    }
+                if (asignaturaSeleccionada == null) {
+                    JOptionPane.showMessageDialog(null, "Por favor, selecciona una asignatura.");
+                    return;
                 }
-                if(asignaturaEncontrado == null) JOptionPane.showMessageDialog(null, "No se encontro el asignatura");
 
-                if(encontrado && encontrado2){
-                    Matricula nuevaMatricula = new Matricula(alumnoEncontrado,asignaturaEncontrado,nota);
-                    try {
-                        Controlador.anadirMatricula(nuevaMatricula);
-                        colegioSalesianos.getInstance().contenidoMatricula.refreshTablaMatricula();
-                        colegioSalesianos.getInstance().tableMatricula.repaint();
-                        colegioSalesianos.getInstance().tableMatricula.validate();
-
-                    }catch (Exception ex) {
-                        JOptionPane.showMessageDialog(null, ex.getMessage());
-                    }
-                }else JOptionPane.showMessageDialog(null, "No se ha podido agregar la matricula");
-
+                Matricula nuevaMatricula = new Matricula(alumnoSeleccionado, asignaturaSeleccionada, nota);
+                try {
+                    Controlador.anadirMatricula(nuevaMatricula);
+                    colegioSalesianos.getInstance().contenidoMatricula.refreshTablaMatricula();
+                    colegioSalesianos.getInstance().tableMatricula.repaint();
+                    colegioSalesianos.getInstance().tableMatricula.validate();
+                    JOptionPane.showMessageDialog(null, "Matrícula añadida correctamente.");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                }
             }
         });
+
     }
+
+    // Método para cargar los ComboBox con los datos de Alumnos y Asignaturas
+    public void cargarComboBoxes() {
+        // Cargar lista de alumnos
+        List<Alumno> listaAlumnos = Controlador.getListaAlumnos();
+        for (Alumno alumno : listaAlumnos) {
+            cmbAlumnos.addItem(alumno); // Agregar cada alumno al ComboBox
+        }
+
+        // Cargar lista de asignaturas
+        List<Asignatura> listaAsignaturas = Controlador.getListaAsignaturas();
+        for (Asignatura asignatura : listaAsignaturas) {
+            cmbAsignaturas.addItem(asignatura); // Agregar cada asignatura al ComboBox
+        }
+    }
+
 }

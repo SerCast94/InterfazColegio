@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import static Controlador.Controlador.notaPorId;
+
 public class ModificarMatriculaVentana extends JFrame {
     private Container panel;
     private GridBagLayout gLayout;
@@ -31,6 +33,12 @@ public class ModificarMatriculaVentana extends JFrame {
     public ModificarMatriculaVentana() {
         initGUI();
         initEventos();
+    }
+
+    public ModificarMatriculaVentana(int filaSeleccionada){
+        initGUI();
+        initEventos();
+        cmbId.setSelectedIndex(filaSeleccionada);
     }
 
     public void initGUI() {

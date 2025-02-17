@@ -8,19 +8,19 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class ContenidoTablaAlumno extends AbstractTableModel {
-    public final static int ID = 0;
-    public final static int NOMBRE = 1;
-    public final static int APELLIDO = 2;
-    public final static int TELEFONO = 3;
-    public final static int CORREO = 4;
-    public final static int DIRECCION = 5;
-    public final static int ESTADO = 6;
-    public final static int FECHA = 7; // Nueva columna Fecha
-    public final static int CARNET = 8; // Nueva columna Carnet
+
+    public final static int NOMBRE = 0;
+    public final static int APELLIDO = 1;
+    public final static int TELEFONO = 2;
+    public final static int CORREO = 3;
+    public final static int DIRECCION = 4;
+    public final static int ESTADO = 5;
+    public final static int FECHA = 6;
+    public final static int CARNET = 7;
 
     // Actualización del array de nombres de columnas
     public final static String[] nombresColumnas = {
-            "ID", "Nombre", "Apellido", "Telefono", "Correo", "Direccion", "Estado", "Fecha", "Carnet"
+            "Nombre", "Apellido", "Telefono", "Correo", "Direccion", "Estado", "Fecha", "Carnet"
     };
 
     public List<Alumno> alumnos;
@@ -48,7 +48,6 @@ public class ContenidoTablaAlumno extends AbstractTableModel {
     public Object getValueAt(int fila, int columna) {
         Alumno alumno = alumnos.get(fila);
         switch (columna){
-            case ID: return alumno.getID();
             case NOMBRE: return alumno.getNombre();
             case APELLIDO: return alumno.getApellido();
             case TELEFONO: return alumno.getTelefono();

@@ -7,10 +7,9 @@ import java.util.List;
 
 
 public class ContenidoTablaAsignatura extends AbstractTableModel {
-    public final static int ID = 0;
-    public final static int NOMBRE = 1;
+    public final static int NOMBRE = 0;
 
-    public final static String[] nombresColumnas = {"ID", "Nombre"};
+    public final static String[] nombresColumnas = {"Nombre"};
 
     public List<Asignatura> asignaturas;
 
@@ -36,7 +35,6 @@ public class ContenidoTablaAsignatura extends AbstractTableModel {
     @Override
     public Object getValueAt(int fila, int columna) {
         return switch (columna) {
-            case ID -> asignaturas.get(fila).getId();
             case NOMBRE -> asignaturas.get(fila).getNombre();
             default -> null;
         };

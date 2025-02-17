@@ -54,6 +54,8 @@ public class Controlador {
         return null;
     }
 
+
+
     public static void borrarAlumno(int id) {
         try {
             deleteAlumno(session, buscarAlumnoPorId(id));
@@ -129,7 +131,7 @@ public class Controlador {
 
     public static Matricula buscarMatriculaPorId(int id) {
         for (Matricula matricula : listaMatriculas) {
-            if (matricula.getAlumno().getID() == id) {
+            if (matricula.getID() == id) {
                 return matricula;
             }
         }
@@ -143,6 +145,11 @@ public class Controlador {
             System.out.println("Error al borrar matrícula: " + e.getMessage());
         }
         listaMatriculas = consultaMatriculas(session);
+    }
+
+    public static double notaPorId(double id) {
+        double nota = session.get(Matricula.class, id).getNota();
+        return nota;
     }
 
     // Métodos generales

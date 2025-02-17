@@ -43,20 +43,17 @@ public class BorrarAsignaturaVentana extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Agregar componentes con restricciones
         agregarComponente(lblId, 0, 0);
         agregarComponente(cmbId, 1, 0);
 
         agregarComponente(lblNombre, 0, 1);
         agregarComponente(txtNombre, 1, 1);
-        txtNombre.setEditable(false); // Campo de solo lectura
+        txtNombre.setEditable(false);
 
-        // Botones
         gbc.gridwidth = 1;
         agregarComponente(btnBorrar, 0, 2);
         agregarComponente(btnCancelar, 1, 2);
 
-        // Cargar IDs de asignaturas en el JComboBox
         cargarIdsAsignaturas();
         cargarAsignaturaPorDefecto();
         setVisible(true);
