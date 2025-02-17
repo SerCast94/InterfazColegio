@@ -1,9 +1,17 @@
 package GUI;
 
+import Controlador.Controlador;
+import Mapeo.Alumno;
+import Mapeo.Asignatura;
+import Mapeo.Matricula;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+
+import static BD.Conexion.insertMatricula;
 
 public class AgregarMatriculaVentana extends JFrame {
     private Container panel;
@@ -73,9 +81,51 @@ public class AgregarMatriculaVentana extends JFrame {
                 dispose();
             }
         });
-    }
 
-    public static void main(String[] args) {
-        new AgregarMatriculaVentana();
+        btnAceptar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String idAlumno = txtIdAlumno.getText();
+                String idAsignatura = txtIdAsignatura.getText();
+                double nota = Double.parseDouble(txtNota.getText());
+
+                Alumno alumnoEncontrado = null;
+                Asignatura asignaturaEncontrado = null;
+                boolean encontrado = false;
+                boolean encontrado2 = false;
+
+                List<Alumno> listaAlumnos = colegioSalesianos.getInstance().contenidoAlumno.getAlumnos();
+                for(Alumno alumnoBusqueda : listaAlumnos) {
+                    if (alumnoBusqueda.getID() == Integer.parseInt(idAlumno)) {
+                        alumnoEncontrado = alumnoBusqueda;
+                        encontrado = true;
+                    }
+                }
+                if (alumnoEncontrado == null) JOptionPane.showMessageDialog(null, "No se encontro el alumno");
+
+                List<Asignatura> listaAsignaturas = colegioSalesianos.getInstance().contenidoAsignatura.getAsignaturas();
+                for(Asignatura asignaturaBusqueda : listaAsignaturas){
+                    if(asignaturaBusqueda.getId() == Integer.parseInt(idAsignatura)) {
+                        asignaturaEncontrado = asignaturaBusqueda;
+                        encontrado2 = true;
+                    }
+                }
+                if(asignaturaEncontrado == null) JOptionPane.showMessageDialog(null, "No se encontro el asignatura");
+
+                if(encontrado && encontrado2){
+                    Matricula nuevaMatricula = new Matricula(alumnoEncontrado,asignaturaEncontrado,nota);
+                    try {
+                        Controlador.anadirMatricula(nuevaMatricula);
+                        colegioSalesianos.getInstance().contenidoMatricula.refreshTablaMatricula();
+                        colegioSalesianos.getInstance().tableMatricula.repaint();
+                        colegioSalesianos.getInstance().tableMatricula.validate();
+
+                    }catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, ex.getMessage());
+                    }
+                }else JOptionPane.showMessageDialog(null, "No se ha podido agregar la matricula");
+
+            }
+        });
     }
 }

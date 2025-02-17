@@ -1,12 +1,14 @@
 package GUI;
 
 import BD.Conexion;
+import Controlador.Controlador;
 import Mapeo.Alumno;
 import Mapeo.Asignatura;
 import Mapeo.Matricula;
 import org.hibernate.Session;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.*;
@@ -17,6 +19,7 @@ import java.util.List;
 import static BD.Conexion.*;
 
 public class colegioSalesianos extends JFrame {
+    private static colegioSalesianos colegio;
     Dimension screenSize;
     JMenuBar menuBar;
     JMenu menuAlumnos;
@@ -25,8 +28,12 @@ public class colegioSalesianos extends JFrame {
     JMenuItem itemAgregarAsignatura;
     JMenu menuMatriculas;
     JMenuItem itemAgregarMatricula;
-    JToolBar toolBar;
-    JButton btnAgregar;
+    JMenuItem itemActualizarAlumnos;
+    JMenuItem itemActualizarAsignaturas;
+    JMenuItem itemActualizarMatriculas;
+    JMenuItem itemBorrarAlumnos;
+    JMenuItem itemBorrarAsignaturas;
+    JMenuItem itemBorrarMatriculas;
     JTabbedPane tabbedPane;
     JPanel panelAlumno;
     JPanel panelAsignatura;
@@ -37,12 +44,21 @@ public class colegioSalesianos extends JFrame {
     JTable tableAlumno;
     JTable tableAsignatura;
     JTable tableMatricula;
-    Session sesion;
+    ContenidoTablaAlumno contenidoAlumno;
+    ContenidoTablaAsignatura contenidoAsignatura;
+    ContenidoTablaMatricula contenidoMatricula;
+    Controlador controlador;
 
     public colegioSalesianos() {
-        sesion = Conexion.crearConexion();
+        colegio = this;
+        controlador = new Controlador(crearConexion());
         initGUI();
         initEventos();
+    }
+
+    public static colegioSalesianos getInstance() {
+
+        return colegio;
     }
 
     void initGUI() {
@@ -59,25 +75,31 @@ public class colegioSalesianos extends JFrame {
         menuAlumnos = new JMenu("Alumnos");
         itemAgregarAlumno = new JMenuItem("Agregar Alumno");
         menuAlumnos.add(itemAgregarAlumno);
+        itemActualizarAlumnos = new JMenuItem("Actualizar Alumnos");
+        menuAlumnos.add(itemActualizarAlumnos);
+        itemBorrarAlumnos = new JMenuItem("Borrar Alumnos");
+        menuAlumnos.add(itemBorrarAlumnos);
 
         menuAsignaturas = new JMenu("Asignaturas");
         itemAgregarAsignatura = new JMenuItem("Agregar Asignatura");
         menuAsignaturas.add(itemAgregarAsignatura);
+        itemActualizarAsignaturas = new JMenuItem("Actualizar Asignaturas");
+        menuAsignaturas.add(itemActualizarAsignaturas);
+        itemBorrarAsignaturas = new JMenuItem("Borrar Asignaturas");
+        menuAsignaturas.add(itemBorrarAsignaturas);
 
         menuMatriculas = new JMenu("Matrículas");
         itemAgregarMatricula = new JMenuItem("Agregar Matrícula");
         menuMatriculas.add(itemAgregarMatricula);
+        itemActualizarMatriculas = new JMenuItem("Actualizar Matrículas");
+        menuMatriculas.add(itemActualizarMatriculas);
+        itemBorrarMatriculas = new JMenuItem("Borrar Matrículas");
+        menuMatriculas.add(itemBorrarMatriculas);
 
         menuBar.add(menuAlumnos);
         menuBar.add(menuAsignaturas);
         menuBar.add(menuMatriculas);
         setJMenuBar(menuBar);
-
-        // barra de herramientas
-        toolBar = new JToolBar();
-        btnAgregar = new JButton(new ImageIcon("src/main/resources/img/notas.png"));
-        toolBar.add(btnAgregar);
-        add(toolBar, BorderLayout.NORTH);
 
         // menú de pestañas
         tabbedPane = new JTabbedPane();
@@ -85,7 +107,8 @@ public class colegioSalesianos extends JFrame {
         // panel de alumnos
         panelAlumno = new JPanel();
         panelAlumno.setLayout(new BorderLayout());
-        tableAlumno = new JTable(contenidoTablaAlumno(sesion));
+        contenidoAlumno = new ContenidoTablaAlumno();
+        tableAlumno = new JTable(contenidoAlumno);
         scrollPaneAlumno = new JScrollPane(tableAlumno);
         panelAlumno.add(scrollPaneAlumno);
         tabbedPane.addTab("Alumno", new ImageIcon("src/main/resources/img/alumno.png"), panelAlumno);
@@ -93,7 +116,8 @@ public class colegioSalesianos extends JFrame {
         // panel de asignatura
         panelAsignatura = new JPanel();
         panelAsignatura.setLayout(new BorderLayout());
-        tableAsignatura = new JTable(contenidoTablaAsignatura(sesion));
+        contenidoAsignatura = new ContenidoTablaAsignatura();
+        tableAsignatura = new JTable(contenidoAsignatura);
         scrollPaneAsignatura = new JScrollPane(tableAsignatura);
         panelAsignatura.add(scrollPaneAsignatura);
         tabbedPane.addTab("Asignatura", new ImageIcon("src/main/resources/img/asignatura.png"), panelAsignatura);
@@ -101,7 +125,8 @@ public class colegioSalesianos extends JFrame {
         // panel de matrícula
         panelMatricula = new JPanel();
         panelMatricula.setLayout(new BorderLayout());
-        tableMatricula = new JTable(contenidoTablaMatricula(sesion));
+        contenidoMatricula = new ContenidoTablaMatricula();
+        tableMatricula = new JTable(contenidoMatricula);
         scrollPaneMatricula = new JScrollPane(tableMatricula);
         panelMatricula.add(scrollPaneMatricula);
         tabbedPane.addTab("Matrícula", new ImageIcon("src/main/resources/img/matricula.png"), panelMatricula);
@@ -131,83 +156,43 @@ public class colegioSalesianos extends JFrame {
                 new AgregarMatriculaVentana();
             }
         });
-    }
-
-    static TableModel contenidoTablaAlumno(Session sesion) {
-        List<Alumno> listaAlumnos = mostrarAlumnos(sesion);
-
-        String[] columnNamesAlumno = {"Nombre", "Apellido", "Teléfono", "Email", "Dirección", "Estado"};
-        Object[][] dataNotas = new Object[listaAlumnos.size()][6];
-
-        for (int i = 0; i < listaAlumnos.size(); i++) {
-            Alumno alumno = listaAlumnos.get(i);
-            dataNotas[i][0] = alumno.getNombre();
-            dataNotas[i][1] = alumno.getApellido();
-            dataNotas[i][2] = alumno.getTelefono();
-            dataNotas[i][3] = alumno.getEmail();
-            dataNotas[i][4] = alumno.getDireccion();
-            dataNotas[i][5] = alumno.getEstado();
-        }
-
-        DefaultTableModel tableModel = new DefaultTableModel(dataNotas, columnNamesAlumno) {
+        itemActualizarAlumnos.addActionListener(new ActionListener() {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+            public void actionPerformed(ActionEvent e) {new ModificarAlumnoVentana();
             }
-        };
-
-        return tableModel;
-    }
-
-    public static TableModel contenidoTablaAsignatura(Session sesion) {
-        List<Asignatura> listaAsignaturas = mostrarAsignaturas(sesion);
-
-        String[] columnNamesAsignatura = {"ID", "Nombre"};
-        Object[][] dataAsignaturas = new Object[listaAsignaturas.size()][2];
-
-        for (int i = 0; i < listaAsignaturas.size(); i++) {
-            Asignatura asignatura = listaAsignaturas.get(i);
-            dataAsignaturas[i][0] = asignatura.getId();
-            dataAsignaturas[i][1] = asignatura.getNombre();
-        }
-
-        DefaultTableModel tableModel = new DefaultTableModel(dataAsignaturas, columnNamesAsignatura) {
+        });
+        itemActualizarAsignaturas.addActionListener(new ActionListener() {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+            public void actionPerformed(ActionEvent e) {
+                new ModificarAsignaturaVentana();
             }
-        };
-
-        return tableModel;
-    }
-
-    public static TableModel contenidoTablaMatricula(Session sesion) {
-        List<Matricula> listaMatriculas = mostrarMatriculas(sesion);
-
-        String[] columnNamesMatricula = {"ID", "Alumno", "Asignatura", "Nota"};
-        Object[][] dataMatriculas = new Object[listaMatriculas.size()][4];
-
-        for (int i = 0; i < listaMatriculas.size(); i++) {
-            Matricula matricula = listaMatriculas.get(i);
-            dataMatriculas[i][0] = matricula.getID();
-            dataMatriculas[i][1] = matricula.getAlumno().getNombre() + " " + matricula.getAlumno().getApellido();
-            dataMatriculas[i][2] = matricula.getAsignatura().getNombre();
-            dataMatriculas[i][3] = matricula.getNota();
-        }
-        DefaultTableModel tableModel = new DefaultTableModel(dataMatriculas, columnNamesMatricula) {
+        });
+        itemActualizarMatriculas.addActionListener(new ActionListener() {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+            public void actionPerformed(ActionEvent e) {
+                new ModificarMatriculaVentana();
             }
-        };
+        });
+        itemBorrarAlumnos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new BorrarAlumnoVentana();
+            }
+        });
+        itemBorrarAsignaturas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new BorrarAsignaturaVentana();
+            }
+        });
+        itemBorrarMatriculas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new BorrarMatriculaVentana();
+            }
+        });
 
-        return tableModel;
+
     }
 
-
-
-
-    public static void main(String[] args) {
-        new colegioSalesianos();
-    }
 }

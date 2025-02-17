@@ -14,8 +14,9 @@ public class Asignatura {
 
     public Asignatura() {}
 
-    public Asignatura(int id, String nombre) {
-        this.id = id;
+
+
+    public Asignatura(String nombre) {
         this.nombre = nombre;
     }
 
@@ -33,5 +34,9 @@ public class Asignatura {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String toString() {
+        return nombre;
     }
 }

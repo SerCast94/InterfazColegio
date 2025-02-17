@@ -8,6 +8,8 @@ CREATE TABLE alumno (
     telefono VARCHAR(20),
     email VARCHAR(150) UNIQUE,
     direccion VARCHAR(255) NOT NULL,
+    fecha DATE NOT NULL,
+    carnet BOOLEAN NOT NULL,
     estado ENUM('activo', 'inactivo') NOT NULL
 );
 

@@ -1,6 +1,7 @@
 package Mapeo;
 
 import jakarta.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "alumno")
@@ -10,36 +11,46 @@ public class Alumno {
     private int ID;
 
     @Column(name = "nombre", nullable = false, length = 100)
-    private String Nombre;
+    private String nombre;
 
     @Column(name = "apellido", nullable = false, length = 100)
-    private String Apellido;
+    private String apellido;
 
     @Column(name = "telefono", length = 20)
-    private String Telefono;
+    private String telefono;
 
     @Column(name = "email", unique = true, length = 150)
-    private String Email;
+    private String email;
 
     @Column(name = "direccion", nullable = false, length = 255)
     private String direccion;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "fecha", nullable = false)
+    private Date fecha;
+
+    @Column(name = "carnet", nullable = false)
+    private boolean carnet;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
     private Estado estado;
 
-    private enum Estado{
+    public enum Estado {
         activo, inactivo
-    };
+    }
 
     public Alumno() {}
 
-    public Alumno(int ID, String nombre, String apellido, String telefono, String email) {
-        this.ID = ID;
-        Nombre = nombre;
-        Apellido = apellido;
-        Telefono = telefono;
-        Email = email;
+    public Alumno(String nombre, String apellido, String telefono, String email, String direccion, Date fecha, boolean carnet, Estado estado) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.telefono = telefono;
+        this.email = email;
+        this.direccion = direccion;
+        this.fecha = fecha;
+        this.carnet = carnet;
+        this.estado = estado;
     }
 
     public int getID() {
@@ -51,35 +62,35 @@ public class Alumno {
     }
 
     public String getNombre() {
-        return Nombre;
+        return nombre;
     }
 
     public void setNombre(String nombre) {
-        Nombre = nombre;
+        this.nombre = nombre;
     }
 
     public String getApellido() {
-        return Apellido;
+        return apellido;
     }
 
     public void setApellido(String apellido) {
-        Apellido = apellido;
+        this.apellido = apellido;
     }
 
     public String getTelefono() {
-        return Telefono;
+        return telefono;
     }
 
     public void setTelefono(String telefono) {
-        Telefono = telefono;
+        this.telefono = telefono;
     }
 
     public String getEmail() {
-        return Email;
+        return email;
     }
 
     public void setEmail(String email) {
-        Email = email;
+        this.email = email;
     }
 
     public String getDireccion() {
@@ -90,6 +101,22 @@ public class Alumno {
         this.direccion = direccion;
     }
 
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    public boolean isCarnet() {
+        return carnet;
+    }
+
+    public void setCarnet(boolean carnet) {
+        this.carnet = carnet;
+    }
+
     public Estado getEstado() {
         return estado;
     }
@@ -97,4 +124,10 @@ public class Alumno {
     public void setEstado(Estado estado) {
         this.estado = estado;
     }
+
+    @Override
+    public String toString() {
+        return nombre + " " + apellido;
+    }
+
 }

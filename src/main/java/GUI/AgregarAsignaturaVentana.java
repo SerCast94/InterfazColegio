@@ -1,9 +1,16 @@
 package GUI;
 
+import Mapeo.Asignatura;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import Controlador.Controlador;
+import static BD.Conexion.insertAlumno;
+import static BD.Conexion.insertAsignatura;
+
 
 public class AgregarAsignaturaVentana extends JFrame {
     private Container panel;
@@ -62,9 +69,24 @@ public class AgregarAsignaturaVentana extends JFrame {
                 dispose();
             }
         });
-    }
 
-    public static void main(String[] args) {
-        new AgregarAsignaturaVentana();
+        btnAceptar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String nombre = txtNombreAsignatura.getText();
+                Asignatura nuevaAsignatura = new Asignatura(nombre);
+                try {
+                    Controlador.anadirAsignatura(nuevaAsignatura);
+                    colegioSalesianos.getInstance().contenidoAsignatura.refreshTablaAsignatura();
+                    colegioSalesianos.getInstance().tableAsignatura.repaint();
+                    colegioSalesianos.getInstance().tableAsignatura.validate();
+
+                    dispose();
+                }catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                }
+
+            }
+        });
     }
 }
