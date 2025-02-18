@@ -16,21 +16,18 @@ public class VisorPdfApache extends JPanel {
     public VisorPdfApache(String rutaArchivo) {
         File archivo = new File(rutaArchivo);
 
-        // Verificar si el archivo existe antes de intentar cargarlo
         if (!archivo.exists()) {
             JOptionPane.showMessageDialog(this, "El archivo PDF no se encuentra", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            // Cargar el documento PDF
             documento = PDDocument.load(archivo);
-
-            // Verificar que el documento tiene páginas
             if (documento.getNumberOfPages() == 0) {
                 JOptionPane.showMessageDialog(this, "El archivo PDF está vacío", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 pdfRenderer = new PDFRenderer(documento);
+
                 repaint();  // Solicitar repintado para mostrar la primera página
             }
         } catch (IOException e) {
@@ -55,7 +52,7 @@ public class VisorPdfApache extends JPanel {
                 float scale = Math.min(scaleX, scaleY);  // Mantener la relación de aspecto
 
                 // Renderizar la página en el gráfico con el tamaño escalado
-                pdfRenderer.renderPageToGraphics(0, (Graphics2D) g, (int) (pageWidth * scale), (int) (pageHeight * scale));
+                pdfRenderer.renderPageToGraphics(0, (Graphics2D) g, scale);
             } catch (IOException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error al renderizar el PDF", "Error", JOptionPane.ERROR_MESSAGE);
